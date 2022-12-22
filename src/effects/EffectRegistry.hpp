@@ -33,5 +33,5 @@ namespace LedPi {
       }
   };
 
-  static const _EffectRegistry* EffectRegistry = new _EffectRegistry();
+  static _EffectRegistry* EffectRegistry = new _EffectRegistry();
 }

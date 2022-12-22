@@ -17,7 +17,7 @@ namespace LedPi
 
     }
 
-    void Render() override
+    void RenderStrip() override
     {
       m_StripServer->SendRenderData(GetUID(), GetColors());
     };

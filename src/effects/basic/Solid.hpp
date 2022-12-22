@@ -1,24 +1,22 @@
 #pragma once
 
-#include "../IEffect.h"
+#include "../BaseEffect.h"
 #include <algorithm>
 
 namespace LedPi
 {
   namespace Effects
   {
-    class Solid : public IEffect
+    class Solid : public BaseEffect
     {
     public:
       virtual std::string GetName() const override
       {
         return "solid";
       }
-      virtual std::vector<uint32_t> Render(uint16_t pixelCount) override {
-         std::vector<uint32_t> v(pixelCount);
+      virtual void Start() override {
+         std::vector<uint32_t> v(1);
          std::fill(v.begin(), v.end(), 0xFFFF00FF);
-
-         return v;
       }
     };
   }

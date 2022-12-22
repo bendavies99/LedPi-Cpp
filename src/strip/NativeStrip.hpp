@@ -10,6 +10,6 @@ namespace LedPi {
 
       }
 
-      void Render() override {};
+      void RenderStrip() override {};
   };
 }
