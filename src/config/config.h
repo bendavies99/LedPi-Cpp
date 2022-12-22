@@ -2,12 +2,12 @@
 
 #include <memory>
 #include <vector>
+#include "application-config.hpp"
+#include "strip-config.hpp"
+#include "network-config.hpp"
 
 
 namespace LedPi {
-  class ApplicationConfig;
-  class StripConfig;
-  class NetworkConfig;
 
   class Config {
     public:
@@ -21,12 +21,12 @@ namespace LedPi {
         return m_NetworkConfig;
       }
 
-      std::vector<std::shared_ptr<StripConfig>> GetStripConfigurations() const {
+      std::vector<StripConfig>& GetStripConfigurations() {
         return m_StripConfigurations;
       }
     private:
       std::shared_ptr<ApplicationConfig> m_ApplicationConfig;
       std::shared_ptr<NetworkConfig> m_NetworkConfig;
-      std::vector<std::shared_ptr<StripConfig>> m_StripConfigurations;
+      std::vector<StripConfig> m_StripConfigurations;
   };
 }

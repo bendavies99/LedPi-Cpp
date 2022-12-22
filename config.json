@@ -10,6 +10,6 @@
     }
   },
   "stripConfigurations": [
-    { "name": "TestLed", "pinNumber": 18, "ledCount": 180, "uid": "0x21" }
+    { "name": "TestLed", "pinNumber": 18, "ledCount": 180, "uid": 1 }
   ]
 }
