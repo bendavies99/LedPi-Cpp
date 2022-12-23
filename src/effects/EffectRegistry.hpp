@@ -6,28 +6,56 @@
 #include <vector>
 #include "IEffect.h"
 #include "basic/all.h"
+#include "internal/Connecting.hpp"
+#include "Effect.hpp"
+#include <iostream>
 
 namespace LedPi {
-  enum Effect {
-    Rainbow,
-    Reactive,
-    Solid
-  };
-
   class _EffectRegistry {
     public:
+      template<typename Base, typename T>
+      inline bool EffectInstanceOf(const T *ptr) {
+        return std::dynamic_cast<const Base*>(ptr) != nullptr;
+      }
+
       std::string GetEffectName(std::shared_ptr<IEffect> effect) {
         return effect->GetName();
       }
+
       std::vector<std::string> GetEffectNames() {
-        return { "rainbow", "reactive", "solid" };
+        std::vector<std::string> values;
+        for(auto& el : Effect::_values()) {
+          if (el._to_string() == "Connecting") continue;
+          values.push_back(el._to_string());
+        }
+
+        return values;
       }
-      std::shared_ptr<IEffect> GetEffect(Effect effect) {
+
+      std::shared_ptr<IEffect> GetEffectFromName(std::string effectName, uint16_t pixelCount) {
+        if (Effect::_is_valid_nocase(effectName.c_str()))
+        {
+          Effect effect = Effect::_from_string_nocase(effectName.c_str());
+          return GetEffect(effect, pixelCount);
+        }
+        
+        return std::shared_ptr<IEffect>();
+      }
+
+      std::shared_ptr<IEffect> GetEffect(Effect effect, uint16_t pixelCount) {
         switch (effect)
         {
-        case Solid:
+        case Effect::Strobe:
+         return std::make_shared<Effects::Strobe>(pixelCount);  
+        case Effect::Connecting:
+         return std::make_shared<Effects::Connecting>(pixelCount);  
+        case Effect::Fireflicker:
+         return std::make_shared<Effects::Fireflicker>(pixelCount);  
+        case Effect::Scan:
+         return std::make_shared<Effects::Scan>(pixelCount);
+        case Effect::Solid:
         default:
-          return std::make_shared<Effects::Solid>();
+          return std::make_shared<Effects::Solid>(pixelCount);
           break;
         } 
       }

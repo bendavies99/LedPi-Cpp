@@ -7,14 +7,12 @@
 #include "network/RemoteStripServer.h"
 #include <chrono>
 #include <thread>
+#include "network/MQTTClient.hpp"
 
 using namespace std;
 
-const string SERVER_ADDR { "tcp://localhost:1883" };
-const string CLIENT_ID { "test_client" };
 std::vector<std::unique_ptr<LedPi::IStrip>> strips;
 bool running = true;
-
 
 int main() {
   spdlog::set_pattern("[%Y-%m-%d %H:%M:%S] [thread:%t] [%^%l%$] %v");
@@ -27,26 +25,7 @@ int main() {
     strips.push_back(std::move(strip));
   }
 
-  // //TODO: MQTT Stuff 
-  // mqtt::async_client client(SERVER_ADDR, CLIENT_ID);
-
-  // auto connOpts = mqtt::connect_options_builder()
-  //                      .clean_session()
-  //                      .connect_timeout(chrono::milliseconds(5000))
-  //                      .automatic_reconnect(true)
-  //                      .finalize();
-
-  // try {
-  //   spdlog::info("Connecting to the mqtt server");
-  //   client.connect(connOpts)->wait();
-
-  //   // client.disconnect()->wait();
-
-  // } catch(const mqtt::exception& e) {
-  //   spdlog::error("An Error occurred {0}", e.to_string());
-  //   return 1;
-  // }
-
+  auto mClient = LedPi::MQTTClient(c.GetNetworkConfig(), strips);
 
   auto thread = std::thread([&]() {
     ioService.run();
@@ -57,9 +36,10 @@ int main() {
       el->Render();
     }
     // 15 fps
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 15));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 60));
   }
 
   thread.join();
+  mClient.Shutdown();
   return 0;
 }

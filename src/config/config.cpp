@@ -129,6 +129,7 @@ namespace LedPi
 
       this->m_NetworkConfig = std::make_shared<NetworkConfig>();
       this->m_NetworkConfig->reactivePort = data["networkConfig"]["reactivePort"];
+      this->m_NetworkConfig->mqtt.host = data["networkConfig"]["mqtt"]["host"];
 
       json stripConfigs = data["stripConfigurations"];
       for (auto &el : stripConfigs)
