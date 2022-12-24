@@ -8,15 +8,12 @@
 #include <unordered_map>
 #include <boost/any.hpp>
 #include "StripOpertation.h"
+#include <atomic>
 
 #define STARTING_BRIGHTNESS 255
 
 namespace LedPi
 {
-  enum StripMode {
-    EFFECTS,
-    NETWORK_UDP
-  };
 
   class BaseStrip : public IStrip
   {
@@ -37,8 +34,10 @@ namespace LedPi
     virtual void Off() override;
     virtual StripMode GetStripMode() override;
     virtual void SetStripMode(StripMode mode) override;
-    virtual void listenForChanges(void (*func)(Strips::StripOpertaion)) override;
+    template<typename _F>
+    void listenForChanges(const _F& func);
     virtual uint32_t GetEffectColor() override;
+    virtual bool GetState() override;
     
   protected:
     const StripConfig& m_StripConfig;
@@ -56,6 +55,8 @@ namespace LedPi
     StripMode m_Mode = StripMode::EFFECTS;
     uint32_t m_EffectColor = 0xFF0000AA;
     std::shared_ptr<IEffect> m_CurrentEffect;
+    std::shared_ptr<std::thread> m_BrightnessThread;
+    std::atomic<uint8_t> m_BrightnessChange;
     std::vector<void (*)(Strips::StripOpertaion)> m_OperationListeners;
     bool m_IsOn = true;
   };

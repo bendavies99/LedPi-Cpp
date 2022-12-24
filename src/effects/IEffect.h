@@ -20,5 +20,6 @@ namespace LedPi
     virtual void Dispose() = 0;
     virtual std::vector<uint32_t> GetColors() = 0;
     virtual bool IsDirty() = 0;
+    virtual std::unordered_map<std::string, boost::any> GetConfig() = 0;
   };
 }

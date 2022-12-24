@@ -4,6 +4,7 @@ paho-mqtt-cpp/1.2.0
 nlohmann_json/3.11.2
 json-schema-validator/2.2.0
 boost/1.80.0
+fmt/9.1.0
 
 [generators]
 cmake

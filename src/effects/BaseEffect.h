@@ -18,6 +18,9 @@ namespace LedPi
       std::fill(m_PreviousRender.begin(), m_PreviousRender.end(), 0xFF000000);
       std::fill(m_CurrentColours.begin(), m_CurrentColours.end(), 0xFF000000);
     };
+    ~BaseEffect() {
+      Stop();
+    }
     virtual std::string GetName() const = 0;
     virtual void Start() = 0;
     virtual void Stop() override;
@@ -25,6 +28,7 @@ namespace LedPi
     virtual void Dispose() override;
     virtual std::vector<uint32_t> GetColors() override;
     virtual bool IsDirty() override;
+    virtual std::unordered_map<std::string, boost::any> GetConfig() override;
   protected:
     uint16_t m_PixelCount;
     void SetRenderData(std::vector<uint32_t> cols);

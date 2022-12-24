@@ -1,11 +1,13 @@
 #pragma once
 
 #include "../BaseEffect.h"
+
 #include <atomic>
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <timercpp/timercpp.h>
 
 namespace LedPi
 {
@@ -15,35 +17,37 @@ namespace LedPi
     {
     public:
       Connecting(uint16_t pixelCount) : BaseEffect(pixelCount) {};
+      Timer timer;
       virtual std::string GetName() const override
       {
         return "connecting";
       }
 
+      virtual void Dispose() override {
+        timer.stop();
+      }
+
       void DoSwitchBack() {
         SwitchBack();
       }
-      std::shared_ptr<std::thread> failThread;
+
       void Fail() {
         SwitchTo(Effect::Strobe);
         UpdateConfig("c1", 0xFFFF0000);
         UpdateConfig("speed", 350);
-        failThread = std::make_shared<std::thread>([this] {
-          std::this_thread::sleep_for(std::chrono::milliseconds(350 * 6));
+        timer.setTimeout([&]() {
           this->DoSwitchBack();
-        });
+        }, 350 * 6);
       }
 
 
-      std::shared_ptr<std::thread> successThread;
       void Success() {
         SwitchTo(Effect::Strobe);
         UpdateConfig("c1", 0xFF00FF00);
         UpdateConfig("speed", 350);
-        successThread = std::make_shared<std::thread>([this] {
-          std::this_thread::sleep_for(std::chrono::milliseconds(350 * 6));
+        timer.setTimeout([&]() {
           this->DoSwitchBack();
-        });
+        }, 350 * 6);
       }
 
       int space = 2;

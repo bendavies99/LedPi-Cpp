@@ -20,7 +20,6 @@ namespace LedPi
       }
       virtual void Start() override
       {
-        srand(time((time_t)0));
         SetupRenderer(100, [&](std::vector<uint32_t> pr)
         {
           auto col = GetConfigItem<uint32_t>("c1");

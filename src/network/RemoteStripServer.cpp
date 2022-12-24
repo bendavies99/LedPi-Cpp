@@ -23,6 +23,7 @@ void LedPi::RemoteStripServer::RecieveMessage()
 
       if (str == "exit")
       {
+        spdlog::info("Shutting down!");
         m_ioService.stop();
       } else if (str == "ic") {
         ConnectClient(remote_endpoint_);

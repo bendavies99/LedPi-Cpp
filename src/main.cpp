@@ -11,7 +11,7 @@
 
 using namespace std;
 
-std::vector<std::unique_ptr<LedPi::IStrip>> strips;
+std::vector<std::shared_ptr<LedPi::IStrip>> strips;
 bool running = true;
 
 int main() {
@@ -21,16 +21,21 @@ int main() {
   auto stripServer = std::make_shared<LedPi::RemoteStripServer>(c.GetApplictionConfig()->debugPort, ioService);
 
   for(auto& el : c.GetStripConfigurations()) {
-    auto strip = LedPi::StripFactory::makeStrip(el, stripServer);
-    strips.push_back(std::move(strip));
+    try {
+      auto strip = LedPi::StripFactory::makeStrip(el, stripServer);
+      strips.push_back(std::move(strip));
+    } catch(std::exception& e) {
+      spdlog::error("Something went wrong {0}", e.what());
+    }
   }
 
+  spdlog::info("Setting up mqtt client");
   auto mClient = LedPi::MQTTClient(c.GetNetworkConfig(), strips);
 
   auto thread = std::thread([&]() {
     ioService.run();
   });
-
+  running = true;
   while(running) {
     for(auto& el: strips) {
       el->Render();

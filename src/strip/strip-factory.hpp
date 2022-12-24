@@ -9,13 +9,13 @@
 namespace LedPi {
    class StripFactory {
      public:
-     static std::unique_ptr<IStrip> makeStrip(const StripConfig& stripConfig, std::shared_ptr<RemoteStripServer> stripServer) {
+     static std::shared_ptr<IStrip> makeStrip(const StripConfig& stripConfig, std::shared_ptr<RemoteStripServer> stripServer) {
         #ifdef PRODUCTION_MODE
            //Native Strip
 
         #elif REMOTE_DEBUG_DISPLAY
            //Remote Debugging
-           return std::make_unique<RemoteStrip>(stripConfig, stripServer);
+           return std::make_shared<RemoteStrip>(stripConfig, stripServer);
         #else
            //Debug Strip
 

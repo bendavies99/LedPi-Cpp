@@ -7,6 +7,7 @@
 #include "IEffect.h"
 #include "basic/all.h"
 #include "internal/Connecting.hpp"
+#include <boost/algorithm/string.hpp>
 #include "Effect.hpp"
 #include <iostream>
 
@@ -32,14 +33,13 @@ namespace LedPi {
         return values;
       }
 
-      std::shared_ptr<IEffect> GetEffectFromName(std::string effectName, uint16_t pixelCount) {
+      Effect GetEffectFromName(std::string effectName) {
         if (Effect::_is_valid_nocase(effectName.c_str()))
         {
-          Effect effect = Effect::_from_string_nocase(effectName.c_str());
-          return GetEffect(effect, pixelCount);
+          return Effect::_from_string_nocase(effectName.c_str());
         }
-        
-        return std::shared_ptr<IEffect>();
+
+        return Effect::Solid;
       }
 
       std::shared_ptr<IEffect> GetEffect(Effect effect, uint16_t pixelCount) {

@@ -10,7 +10,10 @@
 
 namespace LedPi
 {
-  enum StripMode;
+  enum StripMode {
+    EFFECTS,
+    NETWORK_UDP
+  };
 
   class IStrip
   {
@@ -29,7 +32,9 @@ namespace LedPi
     virtual void Off() = 0;
     virtual StripMode GetStripMode() = 0;
     virtual void SetStripMode(StripMode mode) = 0;
-    virtual void listenForChanges(void (*func)(Strips::StripOpertaion)) = 0;
+    template<typename _F>
+    void listenForChanges(const _F& func) {};
     virtual uint32_t GetEffectColor() = 0;
+    virtual bool GetState() = 0;
   };
 }

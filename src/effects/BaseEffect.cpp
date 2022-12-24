@@ -6,6 +6,8 @@
 
 void LedPi::BaseEffect::Stop()
 {
+  //Get rid of any lingering threads
+  Dispose();
   if (m_RenderThread != nullptr)
   {
     m_RenderRunning = false;
@@ -16,7 +18,6 @@ void LedPi::BaseEffect::Stop()
   if (m_SwitchedEffect != nullptr)
   {
     m_SwitchedEffect->Stop();
-    m_SwitchedEffect->Dispose();
   }
 }
 
@@ -54,6 +55,11 @@ bool LedPi::BaseEffect::IsDirty()
   }
   
   return m_Dirty;
+}
+
+std::unordered_map<std::string, boost::any> LedPi::BaseEffect::GetConfig()
+{
+  return m_Config;
 }
 
 void LedPi::BaseEffect::SetRenderData(std::vector<uint32_t> cols)
