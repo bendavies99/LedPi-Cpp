@@ -6,7 +6,7 @@
 LedPi::RemoteStripServer::RemoteStripServer(int port, boost::asio::io_service &ioService)
     : m_ioService(ioService), m_Socket(ioService, udp::endpoint(udp::v4(), port))
 {
-  // ConnectClient(udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 25543));
+  ConnectClient(udp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 25543));
   RecieveMessage();
 }
 

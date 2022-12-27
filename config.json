@@ -4,7 +4,7 @@
     "debugMode": false
   },
   "networkConfig": {
-    "reactivePort": 25543,
+    "reactivePort": 25548,
     "mqtt": {
       "host": "127.0.0.1"
     }

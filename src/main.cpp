@@ -19,6 +19,7 @@ int main() {
   spdlog::set_pattern("[%Y-%m-%d %H:%M:%S] [thread:%t] [%^%l%$] %v");
   LedPi::Config c;
   boost::asio::io_service ioService;
+  boost::asio::io_service ioService2;
   auto stripServer = std::make_shared<LedPi::RemoteStripServer>(c.GetApplictionConfig()->debugPort, ioService);
 
   for(auto& el : c.GetStripConfigurations()) {
@@ -33,7 +34,7 @@ int main() {
   spdlog::info("Setting up mqtt client");
   auto mClient = LedPi::MQTTClient(c.GetNetworkConfig(), strips);
 
-  auto pr = LedPi::PacketReciever(c.GetNetworkConfig()->reactivePort);
+  auto pr = LedPi::PacketReciever(c.GetNetworkConfig()->reactivePort, ioService2);
   pr.Subscribe([&](uint8_t id, std::vector<uint32_t> cols) {
     for(const auto& el : strips) {
       if ((el->GetUID() & 0xFF) == id && el->GetStripMode() == LedPi::StripMode::NETWORK_UDP && el->GetBrightness() > 0)
@@ -46,7 +47,9 @@ int main() {
   auto thread = std::thread([&]() {
     ioService.run();
   });
-  pr.Start();
+  auto thread2 = std::thread([&]() {
+    ioService2.run();
+  });
   running = true;
   while(running) {
     for(auto& el: strips) {
@@ -57,7 +60,7 @@ int main() {
   }
 
   thread.join();
+  thread2.join();
   mClient.Shutdown();
-  pr.Stop();
   return 0;
 }
