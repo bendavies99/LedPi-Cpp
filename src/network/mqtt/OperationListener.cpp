@@ -8,10 +8,10 @@ LedPi::OperationListener::OperationListener(ConnectListener &connectListener) : 
 {
   for(auto& el : connectListener.m_Strips) {
     auto cr = std::make_shared<StripCommandRegister>(el);
-    std::function<void(std::string, std::string)> send = ([&](std::string key, std::string value) {
+    std::function<void(std::string, std::string)> send = ([=](std::string key, std::string value) {
+        spdlog::info("Sending message Topic: {0}/{1} Message: {2}", cr->GetPrefix(), key, value);
         if (m_ConnectListener.m_Client->is_connected())
         {
-          spdlog::info("Sending message Topic: {0}/{1} Message: {2}", cr->GetPrefix(), key, value);
           m_ConnectListener.m_Client->publish(cr->GetPrefix() + "/" + key, value, 0, false);
         }
     });

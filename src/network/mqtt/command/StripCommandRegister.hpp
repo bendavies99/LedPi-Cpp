@@ -56,8 +56,7 @@ namespace LedPi {
       };
 
       virtual void RegisterPublishers(std::function<void(std::string /* key */, std::string /* value */)> send) override {
-        m_Strip->listenForChanges([&](LedPi::Strips::StripOpertaion op) {
-          spdlog::info("Strip changed");
+        m_Strip->listenForChanges([=](LedPi::Strips::StripOpertaion op) {
           switch (op)
           {
           case Strips::StripOpertaion::STATE:
@@ -67,7 +66,7 @@ namespace LedPi {
             send("b", std::to_string(m_Strip->GetBrightness()));
             break;
           case Strips::StripOpertaion::EFFECT_COLOR:
-            send("c", fmt::format("#{:x}", m_Strip->GetEffectColor())); //TODO: Hex Color
+            send("c", fmt::format("#{:06x}", m_Strip->GetEffectColor())); //TODO: Hex Color
             break;
           case Strips::StripOpertaion::EFFECT:
             send("fx", m_Strip->GetEffect()->GetName());

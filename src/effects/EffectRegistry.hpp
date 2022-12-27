@@ -14,11 +14,6 @@
 namespace LedPi {
   class _EffectRegistry {
     public:
-      template<typename Base, typename T>
-      inline bool EffectInstanceOf(const T *ptr) {
-        return std::dynamic_cast<const Base*>(ptr) != nullptr;
-      }
-
       std::string GetEffectName(std::shared_ptr<IEffect> effect) {
         return effect->GetName();
       }

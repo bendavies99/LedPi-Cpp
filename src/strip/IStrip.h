@@ -7,6 +7,7 @@
 #include <boost/any.hpp>
 #include "../effects/IEffect.h"
 #include "StripOpertation.h"
+#include <functional>
 
 namespace LedPi
 {
@@ -32,9 +33,10 @@ namespace LedPi
     virtual void Off() = 0;
     virtual StripMode GetStripMode() = 0;
     virtual void SetStripMode(StripMode mode) = 0;
-    template<typename _F>
-    void listenForChanges(const _F& func) {};
+    virtual void listenForChanges(std::function<void(Strips::StripOpertaion)> func) = 0;
     virtual uint32_t GetEffectColor() = 0;
     virtual bool GetState() = 0;
+    virtual uint8_t GetUID() = 0;
+    virtual void SetStripColors(std::vector<uint32_t> cols) = 0;
   };
 }

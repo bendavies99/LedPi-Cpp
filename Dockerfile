@@ -1,5 +1,5 @@
 #### Base Image
-FROM ubuntu:22.04 AS base
+FROM ubuntu AS base
 
 # add setup_cpp
 WORKDIR "/"
@@ -23,8 +23,8 @@ RUN bash -c 'source ~/.cpprc \
 
 ### Running environment
 # use a distroless image or ubuntu:22.04 if you wish
-FROM ubuntu:22.04
+FROM ubuntu
 # copy the built binaries and their runtime dependencies
 COPY --from=builder /home/app/build/bin /home/app/
 WORKDIR /home/app
-ENTRYPOINT ["bash"]
+ENTRYPOINT ["bash", "ledpi"]

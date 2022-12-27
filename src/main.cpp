@@ -8,6 +8,7 @@
 #include <chrono>
 #include <thread>
 #include "network/MQTTClient.hpp"
+#include "network/PacketReciever.h"
 
 using namespace std;
 
@@ -32,9 +33,20 @@ int main() {
   spdlog::info("Setting up mqtt client");
   auto mClient = LedPi::MQTTClient(c.GetNetworkConfig(), strips);
 
+  auto pr = LedPi::PacketReciever(c.GetNetworkConfig()->reactivePort);
+  pr.Subscribe([&](uint8_t id, std::vector<uint32_t> cols) {
+    for(const auto& el : strips) {
+      if ((el->GetUID() & 0xFF) == id && el->GetStripMode() == LedPi::StripMode::NETWORK_UDP && el->GetBrightness() > 0)
+      {
+        el->SetStripColors(cols);
+      }
+    }
+  });
+
   auto thread = std::thread([&]() {
     ioService.run();
   });
+  pr.Start();
   running = true;
   while(running) {
     for(auto& el: strips) {
@@ -46,5 +58,6 @@ int main() {
 
   thread.join();
   mClient.Shutdown();
+  pr.Stop();
   return 0;
 }

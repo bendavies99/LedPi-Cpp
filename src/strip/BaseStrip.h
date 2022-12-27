@@ -9,6 +9,7 @@
 #include <boost/any.hpp>
 #include "StripOpertation.h"
 #include <atomic>
+#include <functional>
 
 #define STARTING_BRIGHTNESS 255
 
@@ -23,6 +24,7 @@ namespace LedPi
     virtual uint16_t GetPixelCount() const override;
     virtual uint32_t GetColorAtPixel(uint16_t pixel) const override;
     virtual void SetColorAtPixel(uint16_t index, uint32_t color) override;
+    virtual void SetStripColors(std::vector<uint32_t> cols) override;
     virtual void RenderStrip() = 0;
     virtual void Render() override;
     virtual void SetBrightness(uint8_t brightness) override;
@@ -34,14 +36,12 @@ namespace LedPi
     virtual void Off() override;
     virtual StripMode GetStripMode() override;
     virtual void SetStripMode(StripMode mode) override;
-    template<typename _F>
-    void listenForChanges(const _F& func);
+    virtual void listenForChanges(std::function<void(Strips::StripOpertaion)> func) override;
     virtual uint32_t GetEffectColor() override;
     virtual bool GetState() override;
-    
+    virtual uint8_t GetUID() override;
   protected:
     const StripConfig& m_StripConfig;
-    uint8_t GetUID();
     std::vector<uint32_t>& GetColors();
     void PushChange(LedPi::Strips::StripOpertaion op);
     void TurnOnEffect();
@@ -56,8 +56,9 @@ namespace LedPi
     uint32_t m_EffectColor = 0xFF0000AA;
     std::shared_ptr<IEffect> m_CurrentEffect;
     std::shared_ptr<std::thread> m_BrightnessThread;
-    std::atomic<uint8_t> m_BrightnessChange;
-    std::vector<void (*)(Strips::StripOpertaion)> m_OperationListeners;
+    std::atomic<int16_t> m_BrightnessChange;
+    uint16_t m_NewBrightness;
+    std::vector<std::function<void(Strips::StripOpertaion)>> m_OperationListeners;
     bool m_IsOn = true;
   };
 }

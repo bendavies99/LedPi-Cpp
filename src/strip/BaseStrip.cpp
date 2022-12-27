@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 LedPi::BaseStrip::BaseStrip(const StripConfig &stripConfig)
     : m_StripConfig(stripConfig), m_Colors(stripConfig.ledCount)
@@ -34,6 +35,11 @@ void LedPi::BaseStrip::SetColorAtPixel(uint16_t index, uint32_t color)
   m_Colors[index] = color;
 }
 
+void LedPi::BaseStrip::SetStripColors(std::vector<uint32_t> cols)
+{
+  m_Colors = cols;
+}
+
 void LedPi::BaseStrip::Render()
 {
   if (!m_IsOn)
@@ -50,26 +56,25 @@ void LedPi::BaseStrip::Render()
 void LedPi::BaseStrip::SetBrightness(uint8_t brightness)
 {
   int currBrightness = this->m_Brigtness;
-  m_BrightnessChange.store(currBrightness);
   bool isDrop = brightness < currBrightness;
+  m_NewBrightness = brightness;
   if (brightness != this->m_Brigtness)
   {
-    PushChange(Strips::StripOpertaion::BRIGHTNESS);
     m_BrightnessThread = std::make_shared<std::thread>([=] {
       if (brightness != 0)
       {
         TurnOnEffect();
       }
-      while (m_BrightnessChange.load() != brightness)
+      while (m_BrightnessChange.load() != brightness && m_NewBrightness == brightness)
       {
         if (isDrop && brightness < m_BrightnessChange.load())
         {
           m_BrightnessChange.store(m_BrightnessChange.load() - 20);
-          if (m_BrightnessChange.load() < 0)
+          if (m_BrightnessChange.load() <= 0)
           {
             m_BrightnessChange.store(0);
           }
-          if (m_BrightnessChange.load() < brightness)
+          if (m_BrightnessChange.load() <= brightness)
           {
             m_BrightnessChange.store(brightness);
           }
@@ -77,7 +82,7 @@ void LedPi::BaseStrip::SetBrightness(uint8_t brightness)
         else if (!isDrop && brightness > m_BrightnessChange.load())
         {
           m_BrightnessChange.store(m_BrightnessChange.load() + 20);
-          if (m_BrightnessChange.load() > 255)
+          if (m_BrightnessChange.load() >= 255)
           {
             m_BrightnessChange.store(255);
           }
@@ -86,14 +91,16 @@ void LedPi::BaseStrip::SetBrightness(uint8_t brightness)
             m_BrightnessChange.store(brightness);
           }
         }
-        this->m_Brigtness = m_BrightnessChange.load();
+        this->m_Brigtness = (uint8_t)m_BrightnessChange.load() & 255;
+        PushChange(Strips::StripOpertaion::BRIGHTNESS);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
-      if (brightness == 0)
+      if (brightness == 0 && m_NewBrightness == brightness)
       {
         TurnOffEffect();
       }
     });
+    m_BrightnessThread->detach();
   }
 }
 
@@ -218,9 +225,9 @@ void LedPi::BaseStrip::SetStripMode(StripMode mode)
   }
 }
 
-template<typename _F>
-void LedPi::BaseStrip::listenForChanges(const _F& func)
+void LedPi::BaseStrip::listenForChanges(std::function<void(Strips::StripOpertaion)> func)
 {
+  spdlog::info("listen called");
   this->m_OperationListeners.push_back(func);
 }
 
