@@ -9,6 +9,7 @@
 #include <chrono>
 #include <spdlog/spdlog.h>
 #include "mqtt/ConnectListener.hpp"
+#include "mqtt/OperationListener.h"
 
 std::string gen_random(const int len) {
     static const char alphanum[] =
@@ -46,6 +47,10 @@ namespace LedPi
 
         m_ConnectListener = std::make_shared<ConnectListener>(m_Client, connOpts, strips, *this);
         auto l = (mqtt::iaction_listener *)m_ConnectListener.get();
+
+        m_OperationListener = std::make_shared<OperationListener>(*(m_ConnectListener.get()));
+        m_Client->set_callback(*m_OperationListener.get());
+
         spdlog::info("Connecting to the mqtt server with client name {0}", client);
         m_Client->connect(connOpts, nullptr, (*l));
       }
@@ -67,6 +72,7 @@ namespace LedPi
   private:
     std::shared_ptr<mqtt::async_client> m_Client;
     std::shared_ptr<ConnectListener> m_ConnectListener;
+    std::shared_ptr<OperationListener> m_OperationListener;
     bool m_Shutdown = false;
   };
 }

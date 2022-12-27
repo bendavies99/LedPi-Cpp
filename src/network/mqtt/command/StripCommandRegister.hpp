@@ -57,6 +57,7 @@ namespace LedPi {
 
       virtual void RegisterPublishers(std::function<void(std::string /* key */, std::string /* value */)> send) override {
         m_Strip->listenForChanges([&](LedPi::Strips::StripOpertaion op) {
+          spdlog::info("Strip changed");
           switch (op)
           {
           case Strips::StripOpertaion::STATE:

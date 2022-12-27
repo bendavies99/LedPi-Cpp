@@ -4,6 +4,7 @@
 #include <functional>
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
+#include <spdlog/spdlog.h>
 
 namespace LedPi
 {
@@ -24,9 +25,20 @@ namespace LedPi
   public:
     virtual void RegisterCommands() = 0;   
     virtual void RegisterPublishers(std::function<void(std::string /* key */, std::string /* value */)> send) = 0;
+    std::string GetPrefix() { return m_Prefix; }
+    std::vector<std::string> GetCommandNames() {
+      std::vector<std::string> keys;
+      using namespace std;
+      transform(begin(m_Commands), end(m_Commands), back_inserter(keys), 
+                  [](decltype(m_Commands)::value_type const& pair) {
+          return pair.first;
+      }); 
 
+      return keys;
+    }
     template<typename _F>
     void RegisterCommand(std::string name, const _F& func) {
+      spdlog::info("Registering command {0}/{1}", GetPrefix(), name);
       m_Commands[name] = func;
     }
   protected:

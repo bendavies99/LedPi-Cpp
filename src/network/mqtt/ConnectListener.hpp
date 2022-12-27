@@ -92,11 +92,6 @@ namespace LedPi
           }, 350 * 5);
 
           connectAttempts = 0;
-          if (!m_OperationListener)
-          {
-            m_OperationListener = std::make_shared<OperationListener>(*this);
-          }
-          m_Client->set_callback(*m_OperationListener.get());
       }
     };
 
@@ -107,7 +102,6 @@ namespace LedPi
     MQTTClient &m_ClientImpl;
     uint8_t connectAttempts = 1;
     Timer m_Timer;
-    std::shared_ptr<OperationListener> m_OperationListener;
     std::map<std::shared_ptr<LedPi::IStrip>, uint8_t> m_PreviousBrightness;
     std::map<std::shared_ptr<LedPi::IStrip>, std::shared_ptr<LedPi::IEffect>> m_PreviousEffect;
   };
