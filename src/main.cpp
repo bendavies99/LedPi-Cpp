@@ -9,6 +9,9 @@
 #include <thread>
 #include "network/MQTTClient.hpp"
 #include "network/PacketReciever.h"
+#ifdef PRODUCTION_MODE
+#include "strip/NativeStrip.hpp"
+#endif
 
 using namespace std;
 
@@ -22,6 +25,9 @@ int main() {
   boost::asio::io_service ioService2;
   auto stripServer = std::make_shared<LedPi::RemoteStripServer>(c.GetApplictionConfig()->debugPort, ioService);
 
+  #ifdef PRODUCTION_MODE
+    LedPi::Native::InitNativeLeds();
+  #endif
   for(auto& el : c.GetStripConfigurations()) {
     try {
       auto strip = LedPi::StripFactory::makeStrip(el, stripServer);
@@ -31,6 +37,10 @@ int main() {
     }
   }
 
+
+  #ifdef PRODUCTION_MODE
+    LedPi::Native::RunInitFn();
+  #endif
   spdlog::info("Setting up mqtt client");
   auto mClient = LedPi::MQTTClient(c.GetNetworkConfig(), strips);
 
